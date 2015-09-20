@@ -3,6 +3,7 @@ package se.harrison.popularmovies.activities;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.models.MovieResult;
@@ -51,8 +53,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private PosterFragment mPosterFragment;
     private MovieResult mMovieResult;
 
-    private Spinner mSpinner;
-    private Toolbar mToolbar;
     private String mSorting;
     private String mCountFilter;
 
@@ -67,12 +67,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     .commit();
         }
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-        mSpinner = (Spinner) findViewById(R.id.spinner_sort);
-        List<String> sortOptions = Arrays.asList(getResources().getStringArray(R.array.sort_array));
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.spinner_item,sortOptions);
+        Spinner mSpinner = (Spinner) findViewById(R.id.spinner_sort);
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        R.layout.spinner_item,
+                        Arrays.asList(getResources().getStringArray(R.array.sort_array)));
+
         mSpinner.setAdapter(adapter);
 
         mSpinner.setOnItemSelectedListener(this);
@@ -88,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         mMovieResult = savedInstanceState.getParcelable("mMovieResult");
         mPosterFragment = (PosterFragment) getSupportFragmentManager().findFragmentByTag("POSTER_FRAGMENT");
 
@@ -106,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void updateMovies() {
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        Log.d("Wibble", "Updating movies with: " + mSorting);
         fetchMoviesTask.execute(mSorting, mCountFilter);
     }
 
@@ -114,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selection = (String) parent.getAdapter().getItem(position);
-        Log.d("Wibble", "Updating sorting with: " + selection + " ");
+
         switch(selection) {
             case SORTING_POPULARITY:
                 mSorting = "popularity.desc";
@@ -209,9 +213,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 }
             }
-            Log.d(LOG_TAG, moviesJsonStr);
+
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                 @Override
                 public Date deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
                         throws JsonParseException {
