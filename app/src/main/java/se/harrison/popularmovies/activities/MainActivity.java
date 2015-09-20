@@ -1,32 +1,60 @@
 package se.harrison.popularmovies.activities;
 
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.fragments.PosterFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
-    PosterFragment mPosterFragment;
-    MovieResult mMovieResult;
+    static final String SORTING_POPULARITY = "Most popular";
+    static final String SORTING_HIGHEST_RATED = "Highest rated";
+
+    private PosterFragment mPosterFragment;
+    private MovieResult mMovieResult;
+
+    private Spinner mSpinner;
+    private Toolbar mToolbar;
+    private String mSorting;
+    private String mCountFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +66,19 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.container, mPosterFragment, "POSTER_FRAGMENT")
                     .commit();
         }
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        mSpinner = (Spinner) findViewById(R.id.spinner_sort);
+        List<String> sortOptions = Arrays.asList(getResources().getStringArray(R.array.sort_array));
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.spinner_item,sortOptions);
+        mSpinner.setAdapter(adapter);
+
+        mSpinner.setOnItemSelectedListener(this);
+
+        mSorting = "popularity.desc";
+        mCountFilter = "0";
     }
 
     @Override
@@ -58,28 +99,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     protected void onStart() {
         updateMovies();
         super.onStart();
@@ -87,7 +106,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateMovies() {
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        fetchMoviesTask.execute("popularity.desc");
+        Log.d("Wibble", "Updating movies with: " + mSorting);
+        fetchMoviesTask.execute(mSorting, mCountFilter);
+    }
+
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String selection = (String) parent.getAdapter().getItem(position);
+        Log.d("Wibble", "Updating sorting with: " + selection + " ");
+        switch(selection) {
+            case SORTING_POPULARITY:
+                mSorting = "popularity.desc";
+                mCountFilter = "0";
+                break;
+            case SORTING_HIGHEST_RATED:
+                mSorting = "vote_average.desc";
+                mCountFilter = "10";
+                break;
+            default:
+                mSorting = "popularity.desc";
+                mCountFilter = "0";
+        }
+
+        updateMovies();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
@@ -96,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
         final String SORTING_PARAM = "sort_by";
         final String API_KEY_PARAM = "api_key";
+        final String COUNT_FILTER = "vote_count.gte";
 
         @Override
         protected MovieResult doInBackground(String... params) {
@@ -113,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
                         .appendQueryParameter(SORTING_PARAM, params[0])
+                        .appendQueryParameter(COUNT_FILTER, params[1])
                         .appendQueryParameter(API_KEY_PARAM, getResources().getString(R.string.themoviedb_api_key))
                         .build();
 
@@ -160,8 +209,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+            Log.d(LOG_TAG, moviesJsonStr);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                @Override
+                public Date deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
+                        throws JsonParseException {
+                    try {
+                        return df.parse(json.getAsString());
+                    } catch (ParseException e) {
+                        return null;
+                    }
+                }
+            }).create();
 
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
             return gson.fromJson(moviesJsonStr, MovieResult.class);
         }
 
