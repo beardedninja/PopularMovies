@@ -1,7 +1,9 @@
 package se.harrison.popularmovies.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,6 +14,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import se.harrison.popularmovies.activities.DetailActivity;
 import se.harrison.popularmovies.models.Movie;
 
 /**
@@ -61,7 +64,7 @@ public class MovieAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, final View convertView, ViewGroup parent) {
         ImageView imageView;
         if (convertView != null) {
             imageView = (ImageView) convertView;
@@ -76,6 +79,15 @@ public class MovieAdapter extends BaseAdapter {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setAdjustViewBounds(true);
             imageView.setBackgroundColor(Color.BLACK);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, DetailActivity.class);
+                    intent.putExtra("movie", getItem(position));
+                    mContext.startActivity(intent);
+                }
+            });
         }
 
         Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/" + getItem(position).posterPath).into(imageView);

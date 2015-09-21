@@ -1,22 +1,18 @@
 package se.harrison.popularmovies.activities;
 
-import android.content.DialogInterface;
+import android.app.ProgressDialog;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.GridView;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,15 +31,13 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import se.harrison.popularmovies.R;
-import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.fragments.PosterFragment;
+import se.harrison.popularmovies.models.MovieResult;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
@@ -149,6 +143,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         final String API_KEY_PARAM = "api_key";
         final String COUNT_FILTER = "vote_count.gte";
 
+
+        ProgressDialog mDialog;
+
+        @Override
+        protected void onPreExecute() {
+            mDialog = ProgressDialog.show(MainActivity.this, "Please wait", "Loading", true, false);
+        }
+
         @Override
         protected MovieResult doInBackground(String... params) {
 
@@ -238,6 +240,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     mPosterFragment.addMovies(movieResults.getResults());
                 }
             }
+
+            if (mDialog != null) mDialog.dismiss();
         }
     }
 }

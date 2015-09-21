@@ -24,6 +24,9 @@ public class Movie implements Parcelable {
     @SerializedName("overview")
     public String synopsis;
 
+    @SerializedName("title")
+    public String title;
+
     @Override
     public int describeContents() {
         return 0;
@@ -36,6 +39,7 @@ public class Movie implements Parcelable {
         dest.writeLong(releaseDate != null ? releaseDate.getTime() : -1);
         dest.writeDouble(this.voteAverage);
         dest.writeString(this.synopsis);
+        dest.writeString(this.title);
     }
 
     public Movie() {
@@ -48,6 +52,7 @@ public class Movie implements Parcelable {
         this.releaseDate = tmpReleaseDate == -1 ? null : new Date(tmpReleaseDate);
         this.voteAverage = in.readDouble();
         this.synopsis = in.readString();
+        this.title = in.readString();
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
