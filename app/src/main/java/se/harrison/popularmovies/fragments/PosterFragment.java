@@ -19,7 +19,7 @@ import se.harrison.popularmovies.models.MovieResult;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PosterFragment extends Fragment implements AbsListView.OnScrollListener {
+public class PosterFragment extends Fragment {
 
     private MovieAdapter mMovieAdapter;
     private GridView mGrid;
@@ -39,8 +39,6 @@ public class PosterFragment extends Fragment implements AbsListView.OnScrollList
         mGrid = (GridView) view.findViewById(R.id.gridView);
         mGrid.setAdapter(mMovieAdapter);
 
-        mGrid.setOnScrollListener(this);
-
         if (getResources().getBoolean(R.bool.is_landscape)) {
             mGrid.setNumColumns(3);
         }
@@ -51,16 +49,5 @@ public class PosterFragment extends Fragment implements AbsListView.OnScrollList
     public void addMovies(ArrayList<Movie> movies) {
         mMovieAdapter.addMovies(movies);
         mMovieAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        Log.d("ONSCROLL", "FIRST VISIBLE ITEM:" + firstVisibleItem);
-        Log.d("ONSCROLL", "VISIBLE ITEM COUNT:" + visibleItemCount);
     }
 }

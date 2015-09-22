@@ -1,11 +1,12 @@
 package se.harrison.popularmovies.activities;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -54,15 +55,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String mDefaultSorting = "popularity.desc";
+        String mDefaultCountFilter = "0";
+
         if (savedInstanceState == null) {
             mPosterFragment = new PosterFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, mPosterFragment, "POSTER_FRAGMENT")
                     .commit();
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            mSorting = prefs.getString("sorting", mDefaultSorting);
+            mCountFilter = prefs.getString("count_filter", mDefaultCountFilter);
+        } else {
+            mSorting = mDefaultSorting;
+            mCountFilter = mDefaultSorting;
+            restoreState(savedInstanceState);
         }
 
-        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         Spinner mSpinner = (Spinner) findViewById(R.id.spinner_sort);
 
@@ -73,37 +86,43 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         Arrays.asList(getResources().getStringArray(R.array.sort_array)));
 
         mSpinner.setAdapter(adapter);
-
-        mSpinner.setOnItemSelectedListener(this);
-
-        mSorting = "popularity.desc";
-        mCountFilter = "0";
+        sortValueToIndex();
+        mSpinner.setSelection(sortValueToIndex(), false);
+        mSpinner.setOnItemSelectedListener(MainActivity.this);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putParcelable("mMovieResult", mMovieResult);
+        outState.putString("mSorting", mSorting);
+        outState.putString("mCountFilter", mCountFilter);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        restoreState(savedInstanceState);
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    public void restoreState(Bundle savedInstanceState) {
         mMovieResult = savedInstanceState.getParcelable("mMovieResult");
         mPosterFragment = (PosterFragment) getSupportFragmentManager().findFragmentByTag("POSTER_FRAGMENT");
+        mSorting = savedInstanceState.getString("mSorting");
+        mCountFilter = savedInstanceState.getString("mCountFilter");
 
         if (mPosterFragment != null && mMovieResult != null) {
             mPosterFragment.addMovies(mMovieResult.getResults());
         }
-        super.onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onStart() {
-        updateMovies();
-        super.onStart();
     }
 
     private void updateMovies() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.edit()
+                .putString("sorting", mSorting)
+                .putString("count_filter", mCountFilter)
+                .apply();
+
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
         fetchMoviesTask.execute(mSorting, mCountFilter);
     }
@@ -112,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selection = (String) parent.getAdapter().getItem(position);
+        String currentSorting = mSorting;
 
         switch(selection) {
             case SORTING_POPULARITY:
@@ -127,7 +147,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mCountFilter = "0";
         }
 
-        updateMovies();
+        if (!currentSorting.equals(mSorting) || mMovieResult == null) updateMovies();
+    }
+
+    public int sortValueToIndex() {
+        switch(mSorting) {
+            case "popularity.desc":
+                return 0;
+            case "vote_average.desc":
+                return 1;
+            default:
+                return 0;
+        }
     }
 
     @Override
