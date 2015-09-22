@@ -5,7 +5,9 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
 /**
  * Created by alex on 14/09/15.
  */
@@ -14,6 +16,9 @@ public class Movie implements Parcelable {
 
     @SerializedName("poster_path")
     public String posterPath;
+
+    @SerializedName("backdrop_path")
+    public String backdropPath;
 
     @SerializedName("release_date")
     public Date releaseDate;
@@ -36,6 +41,7 @@ public class Movie implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.id);
         dest.writeString(this.posterPath);
+        dest.writeString(this.backdropPath);
         dest.writeLong(releaseDate != null ? releaseDate.getTime() : -1);
         dest.writeDouble(this.voteAverage);
         dest.writeString(this.synopsis);
@@ -48,6 +54,7 @@ public class Movie implements Parcelable {
     protected Movie(Parcel in) {
         this.id = in.readInt();
         this.posterPath = in.readString();
+        this.backdropPath = in.readString();
         long tmpReleaseDate = in.readLong();
         this.releaseDate = tmpReleaseDate == -1 ? null : new Date(tmpReleaseDate);
         this.voteAverage = in.readDouble();
@@ -64,6 +71,12 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
+
+    public String getReleaseYear() {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy");
+        return df.format(releaseDate);
+    }
+
 }
 
 /*

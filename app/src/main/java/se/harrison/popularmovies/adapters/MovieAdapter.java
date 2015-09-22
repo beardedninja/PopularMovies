@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 
 import se.harrison.popularmovies.activities.DetailActivity;
@@ -79,16 +80,16 @@ public class MovieAdapter extends BaseAdapter {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setAdjustViewBounds(true);
             imageView.setBackgroundColor(Color.BLACK);
-
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(mContext, DetailActivity.class);
-                    intent.putExtra("movie", getItem(position));
-                    mContext.startActivity(intent);
-                }
-            });
         }
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, DetailActivity.class);
+                intent.putExtra("movie", getItem(position));
+                mContext.startActivity(intent);
+            }
+        });
 
         Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/" + getItem(position).posterPath).into(imageView);
 
