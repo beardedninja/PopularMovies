@@ -4,17 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 
+import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.activities.DetailActivity;
 import se.harrison.popularmovies.models.Movie;
 
@@ -66,21 +68,22 @@ public class MovieAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, final View convertView, ViewGroup parent) {
-        ImageView imageView;
+        View posterView;
         if (convertView != null) {
-            imageView = (ImageView) convertView;
+            posterView = convertView;
         } else {
-            imageView = new ImageView(mContext);
-            GridView.LayoutParams param = new GridView.LayoutParams(
-                    GridView.LayoutParams.MATCH_PARENT,
-                    GridView.LayoutParams.MATCH_PARENT
-            );
+            LayoutInflater inflater = (LayoutInflater) mContext
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            imageView.setLayoutParams(param);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setAdjustViewBounds(true);
-            imageView.setBackgroundColor(Color.BLACK);
+            posterView = inflater.inflate(R.layout.poster_thumbnail, null);
         }
+
+        Movie movie = getItem(position);
+
+        TextView titleView = (TextView) posterView.findViewById(R.id.posterTitleView);
+        titleView.setText(movie.title);
+
+        ImageView imageView = (ImageView) posterView.findViewById(R.id.posterImageView);
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,9 +94,9 @@ public class MovieAdapter extends BaseAdapter {
             }
         });
 
-        Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/" + getItem(position).posterPath).into(imageView);
+        Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/" + movie.posterPath).into(imageView);
 
-        return imageView;
+        return posterView;
     }
 
     @Override
