@@ -6,10 +6,8 @@
         <item>Highest rated</item>
     </string-array>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="order_by_popularity">popularity.desc</string>
+    <string name="order_by_rating">vote_average.desc</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="title_activity_detail">DetailActivity</string>
 </resources>

@@ -39,11 +39,9 @@ import java.util.Locale;
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.fragments.PosterFragment;
 import se.harrison.popularmovies.models.MovieResult;
+import se.harrison.popularmovies.utilities.Constants;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-
-    static final String SORTING_POPULARITY = "Most popular";
-    static final String SORTING_HIGHEST_RATED = "Highest rated";
 
     private PosterFragment mPosterFragment;
     private MovieResult mMovieResult;
@@ -148,16 +146,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String currentSorting = mSorting;
 
         switch (selection) {
-            case SORTING_POPULARITY:
-                mSorting = "popularity.desc";
+            case Constants.SORTING_POPULARITY:
+                mSorting = Constants.API_SORTING_POPULARITY;
                 mCountFilter = "0";
                 break;
-            case SORTING_HIGHEST_RATED:
-                mSorting = "vote_average.desc";
+            case Constants.SORTING_HIGHEST_RATED:
+                mSorting = Constants.API_SORTING_HIGHEST_RATED;
                 mCountFilter = "10";
                 break;
             default:
-                mSorting = "popularity.desc";
+                mSorting = Constants.API_SORTING_POPULARITY;
                 mCountFilter = "0";
         }
 
@@ -183,13 +181,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
 
-        final String LOG_TAG = FetchMoviesTask.class.getName();
-        final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
-        final String SORTING_PARAM = "sort_by";
-        final String API_KEY_PARAM = "api_key";
-        final String COUNT_FILTER = "vote_count.gte";
-
-
         ProgressDialog mDialog;
 
         @Override
@@ -211,10 +202,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             String moviesJsonStr = null;
 
             try {
-                Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                        .appendQueryParameter(SORTING_PARAM, params[0])
-                        .appendQueryParameter(COUNT_FILTER, params[1])
-                        .appendQueryParameter(API_KEY_PARAM, getResources().getString(R.string.themoviedb_api_key))
+                Uri builtUri = Uri.parse(Constants.MOVIE_BASE_URL).buildUpon()
+                        .appendQueryParameter(Constants.SORTING_PARAM, params[0])
+                        .appendQueryParameter(Constants.COUNT_FILTER, params[1])
+                        .appendQueryParameter(Constants.API_KEY_PARAM, getResources().getString(R.string.themoviedb_api_key))
                         .build();
 
                 URL url = new URL(builtUri.toString());
@@ -247,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 moviesJsonStr = buffer.toString();
             } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
+                Log.e(Constants.LOG_TAG, "Error ", e);
                 return null;
             } finally {
                 if (urlConnection != null) {
@@ -257,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     try {
                         reader.close();
                     } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
+                        Log.e(Constants.LOG_TAG, "Error closing stream", e);
                     }
                 }
             }

@@ -17,6 +17,7 @@ import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.activities.DetailActivity;
 import se.harrison.popularmovies.activities.MainActivity;
 import se.harrison.popularmovies.models.Movie;
+import se.harrison.popularmovies.utilities.Constants;
 
 /**
  * Created by alex on 15/09/15.
@@ -93,7 +94,7 @@ public class MovieAdapter extends BaseAdapter {
             }
         });
 
-        Picasso.with(mContext).load("http://image.tmdb.org/t/p/w185/" + movie.posterPath).into(imageView);
+        Picasso.with(mContext).load(Constants.THUMBNAIL_URL + movie.posterPath).into(imageView);
 
         return posterView;
     }

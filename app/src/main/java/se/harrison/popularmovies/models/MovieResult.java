@@ -29,7 +29,7 @@ public class MovieResult implements Parcelable {
 
     protected MovieResult(Parcel in) {
         this.page = in.readInt();
-        this.results = new ArrayList<Movie>();
+        this.results = new ArrayList<>();
         in.readList(this.results, ArrayList.class.getClassLoader());
     }
 
