@@ -78,26 +78,3 @@ public class Movie implements Parcelable {
     }
 
 }
-
-/*
-{
-  "adult": false,
-  "backdrop_path": "\/tbhdm8UJAb4ViCTsulYFL3lxMCd.jpg",
-  "genre_ids": [
-    53,
-    28,
-    12
-  ],
-  "id": 76341,
-  "original_language": "en",
-  "original_title": "Mad Max: Fury Road",
-  "overview": "An apocalyptic story set in the furthest reaches of our planet, in a stark desert landscape where humanity is broken, and most everyone is crazed fighting for the necessities of life. Within this world exist two rebels on the run who just might be able to restore order. There's Max, a man of action and a man of few words, who seeks peace of mind following the loss of his wife and child in the aftermath of the chaos. And Furiosa, a woman of action and a woman who believes her path to survival may be achieved if she can make it across the desert back to her childhood homeland.",
-  "release_date": "2015-05-15",
-  "poster_path": "\/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
-  "popularity": 51.988475,
-  "title": "Mad Max: Fury Road",
-  "video": false,
-  "vote_average": 7.6,
-  "vote_count": 2214
-}
- */

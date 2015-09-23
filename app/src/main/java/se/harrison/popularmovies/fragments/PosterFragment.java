@@ -2,11 +2,9 @@ package se.harrison.popularmovies.fragments;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
@@ -14,7 +12,6 @@ import java.util.ArrayList;
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.adapters.MovieAdapter;
 import se.harrison.popularmovies.models.Movie;
-import se.harrison.popularmovies.models.MovieResult;
 
 /**
  * A placeholder fragment containing a simple view.
