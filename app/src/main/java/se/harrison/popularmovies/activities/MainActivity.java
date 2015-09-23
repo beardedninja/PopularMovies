@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String mDefaultSorting = "popularity.desc";
+        String mDefaultSorting = Constants.API_SORTING_POPULARITY;
         String mDefaultCountFilter = "0";
         mSelectedMovieIndex = 0;
 
@@ -165,9 +165,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public int sortValueToIndex() {
         switch (mSorting) {
-            case "popularity.desc":
+            case Constants.API_SORTING_POPULARITY:
                 return 0;
-            case "vote_average.desc":
+            case Constants.API_SORTING_HIGHEST_RATED:
                 return 1;
             default:
                 return 0;
@@ -185,7 +185,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         protected void onPreExecute() {
-            mDialog = ProgressDialog.show(MainActivity.this, "Please wait", "Loading", true, false);
+            mDialog = ProgressDialog.show(
+                    MainActivity.this,
+                    getResources().getString(R.string.please_wait),
+                    getResources().getString(R.string.loading),
+                    true, false);
         }
 
         @Override

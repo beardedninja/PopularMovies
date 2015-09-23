@@ -10,6 +10,7 @@ import com.squareup.picasso.Picasso;
 
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.models.Movie;
+import se.harrison.popularmovies.utilities.Constants;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -29,7 +30,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         ImageView backdrop = (ImageView) findViewById(R.id.backdropImageView);
-        Picasso.with(this).load("http://image.tmdb.org/t/p/w185/" + movie.backdropPath).into(backdrop);
+        Picasso.with(this).load(Constants.THUMBNAIL_URL + movie.backdropPath).into(backdrop);
 
         TextView title = (TextView) findViewById(R.id.titleTextView);
         title.setText(movie.title);
@@ -44,7 +45,7 @@ public class DetailActivity extends AppCompatActivity {
         synopsis.setText(movie.synopsis);
 
         ImageView poster = (ImageView) findViewById(R.id.posterImageView);
-        Picasso.with(this).load("http://image.tmdb.org/t/p/w185/" + movie.posterPath).into(poster);
+        Picasso.with(this).load(Constants.THUMBNAIL_URL + movie.posterPath).into(poster);
     }
 
     private void setupToolbar() {
