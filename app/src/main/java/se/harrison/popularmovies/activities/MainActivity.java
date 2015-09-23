@@ -40,7 +40,7 @@ import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.fragments.PosterFragment;
 import se.harrison.popularmovies.models.MovieResult;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     static final String SORTING_POPULARITY = "Most popular";
     static final String SORTING_HIGHEST_RATED = "Highest rated";
@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private String mSorting;
     private String mCountFilter;
+    private int mSelectedMovieIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         String mDefaultSorting = "popularity.desc";
         String mDefaultCountFilter = "0";
+        mSelectedMovieIndex = 0;
 
         if (savedInstanceState == null) {
             mPosterFragment = new PosterFragment();
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             mSorting = prefs.getString("sorting", mDefaultSorting);
             mCountFilter = prefs.getString("count_filter", mDefaultCountFilter);
+            mSelectedMovieIndex = prefs.getInt("selected_movie_index", 0);
         } else {
             mSorting = mDefaultSorting;
             mCountFilter = mDefaultSorting;
@@ -96,12 +99,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         outState.putParcelable("mMovieResult", mMovieResult);
         outState.putString("mSorting", mSorting);
         outState.putString("mCountFilter", mCountFilter);
+        outState.putInt("mSelectedIndex", mSelectedMovieIndex);
+
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         restoreState(savedInstanceState);
+
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -110,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mPosterFragment = (PosterFragment) getSupportFragmentManager().findFragmentByTag("POSTER_FRAGMENT");
         mSorting = savedInstanceState.getString("mSorting");
         mCountFilter = savedInstanceState.getString("mCountFilter");
+        mSelectedMovieIndex = savedInstanceState.getInt("mSelectedMovieIndex", 0);
 
         if (mPosterFragment != null && mMovieResult != null) {
             mPosterFragment.addMovies(mMovieResult.getResults());
@@ -127,13 +134,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         fetchMoviesTask.execute(mSorting, mCountFilter);
     }
 
+    public void setSelectedMovie(int position) {
+        mSelectedMovieIndex = position;
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.edit().putInt("selected_movie_index", mSelectedMovieIndex).apply();
+    }
+
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selection = (String) parent.getAdapter().getItem(position);
         String currentSorting = mSorting;
 
-        switch(selection) {
+        switch (selection) {
             case SORTING_POPULARITY:
                 mSorting = "popularity.desc";
                 mCountFilter = "0";
@@ -148,10 +162,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         if (!currentSorting.equals(mSorting) || mMovieResult == null) updateMovies();
+
     }
 
     public int sortValueToIndex() {
-        switch(mSorting) {
+        switch (mSorting) {
             case "popularity.desc":
                 return 0;
             case "vote_average.desc":
@@ -249,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
                 @Override
                 public Date deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
                         throws JsonParseException {
@@ -269,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mMovieResult = movieResults;
                 if (mPosterFragment != null) {
                     mPosterFragment.addMovies(movieResults.getResults());
+                    mPosterFragment.setSelection(mSelectedMovieIndex);
                 }
             }
 

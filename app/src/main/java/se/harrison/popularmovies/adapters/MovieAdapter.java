@@ -2,13 +2,10 @@ package se.harrison.popularmovies.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,6 +15,7 @@ import java.util.ArrayList;
 
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.activities.DetailActivity;
+import se.harrison.popularmovies.activities.MainActivity;
 import se.harrison.popularmovies.models.Movie;
 
 /**
@@ -31,7 +29,7 @@ public class MovieAdapter extends BaseAdapter {
     public MovieAdapter(Context context, ArrayList<Movie> movies) {
         mContext = context;
 
-        for (Movie movie: movies) {
+        for (Movie movie : movies) {
             mMovies.add(movie);
         }
     }
@@ -88,6 +86,7 @@ public class MovieAdapter extends BaseAdapter {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((MainActivity) mContext).setSelectedMovie(position);
                 Intent intent = new Intent(mContext, DetailActivity.class);
                 intent.putExtra("movie", getItem(position));
                 mContext.startActivity(intent);
@@ -106,7 +105,7 @@ public class MovieAdapter extends BaseAdapter {
 
     public void addMovies(ArrayList<Movie> movies) {
         mMovies.clear();
-        for (Movie movie: movies) {
+        for (Movie movie : movies) {
             mMovies.add(movie);
         }
         notifyDataSetChanged();

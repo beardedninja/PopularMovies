@@ -1,16 +1,18 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="se.harrison.popularmovies.fragments.PosterFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="se.harrison.popularmovies.fragments.PosterFragment">
 
     <GridView
         android:id="@+id/gridView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:background="@android:color/black"
+        android:gravity="center"
+        android:horizontalSpacing="4dp"
         android:numColumns="auto_fit"
         android:stretchMode="columnWidth"
-        android:gravity="center"
-        android:background="@android:color/black"
-        android:verticalSpacing="4dp"
-        android:horizontalSpacing="4dp"/>
+        android:verticalSpacing="4dp" />
 
 </FrameLayout>

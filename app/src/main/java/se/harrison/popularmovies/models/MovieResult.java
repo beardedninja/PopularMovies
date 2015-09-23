@@ -12,10 +12,6 @@ public class MovieResult implements Parcelable {
     public int page;
     public ArrayList<Movie> results;
 
-    public int getPage() {
-        return page;
-    }
-
     public ArrayList<Movie> getResults() {
         return results;
     }
@@ -29,9 +25,6 @@ public class MovieResult implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.page);
         dest.writeList(this.results);
-    }
-
-    public MovieResult() {
     }
 
     protected MovieResult(Parcel in) {

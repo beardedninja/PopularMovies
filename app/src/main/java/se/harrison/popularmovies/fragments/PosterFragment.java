@@ -50,4 +50,8 @@ public class PosterFragment extends Fragment {
         mMovieAdapter.addMovies(movies);
         mMovieAdapter.notifyDataSetChanged();
     }
+
+    public void setSelection(int position) {
+        mGrid.setSelection(position);
+    }
 }
