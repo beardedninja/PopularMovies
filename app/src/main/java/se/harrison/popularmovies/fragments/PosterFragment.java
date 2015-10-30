@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.adapters.MovieAdapter;
 import se.harrison.popularmovies.models.Movie;
+import se.harrison.popularmovies.utilities.EndlessScrollListener;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -35,6 +36,12 @@ public class PosterFragment extends Fragment {
 
         mGrid = (GridView) view.findViewById(R.id.gridView);
         mGrid.setAdapter(mMovieAdapter);
+        mGrid.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                return ((PagingListener) getActivity()).loadMore(page);
+            }
+        });
 
         if (getResources().getBoolean(R.bool.is_landscape)) {
             mGrid.setNumColumns(3);
@@ -43,12 +50,19 @@ public class PosterFragment extends Fragment {
         return view;
     }
 
+    public void setupMovies(ArrayList<Movie> movies) {
+        mMovieAdapter.setupMovies(movies);
+    }
+
     public void addMovies(ArrayList<Movie> movies) {
         mMovieAdapter.addMovies(movies);
-        mMovieAdapter.notifyDataSetChanged();
     }
 
     public void setSelection(int position) {
         mGrid.setSelection(position);
+    }
+
+    public interface PagingListener {
+        boolean loadMore(int page);
     }
 }

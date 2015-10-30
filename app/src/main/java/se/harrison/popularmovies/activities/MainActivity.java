@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -41,7 +42,7 @@ import se.harrison.popularmovies.fragments.PosterFragment;
 import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.utilities.Constants;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, PosterFragment.PagingListener {
 
     private PosterFragment mPosterFragment;
     private MovieResult mMovieResult;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private String mSorting;
     private String mCountFilter;
     private int mSelectedMovieIndex;
+    private int mPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,9 +71,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             mSorting = prefs.getString("sorting", mDefaultSorting);
             mCountFilter = prefs.getString("count_filter", mDefaultCountFilter);
             mSelectedMovieIndex = prefs.getInt("selected_movie_index", 0);
+            mPage = prefs.getInt("page", 1);
         } else {
             mSorting = mDefaultSorting;
-            mCountFilter = mDefaultSorting;
+            mCountFilter = mDefaultCountFilter;
+            mPage = 1;
             restoreState(savedInstanceState);
         }
 
@@ -98,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         outState.putString("mSorting", mSorting);
         outState.putString("mCountFilter", mCountFilter);
         outState.putInt("mSelectedIndex", mSelectedMovieIndex);
+        outState.putInt("mPage", mPage);
 
         super.onSaveInstanceState(outState);
     }
@@ -115,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mSorting = savedInstanceState.getString("mSorting");
         mCountFilter = savedInstanceState.getString("mCountFilter");
         mSelectedMovieIndex = savedInstanceState.getInt("mSelectedMovieIndex", 0);
+        mPage = savedInstanceState.getInt("mPage", 1);
 
         if (mPosterFragment != null && mMovieResult != null) {
             mPosterFragment.addMovies(mMovieResult.getResults());
@@ -126,10 +132,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         prefs.edit()
                 .putString("sorting", mSorting)
                 .putString("count_filter", mCountFilter)
+                .putInt("page", mPage)
                 .apply();
 
         FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        fetchMoviesTask.execute(mSorting, mCountFilter);
+        fetchMoviesTask.execute(mSorting, mCountFilter, "" + mPage);
     }
 
     public void setSelectedMovie(int position) {
@@ -159,7 +166,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 mCountFilter = "0";
         }
 
-        if (!currentSorting.equals(mSorting) || mMovieResult == null) updateMovies();
+        if (!currentSorting.equals(mSorting) || mMovieResult == null) {
+            mPage = 1;
+            mSelectedMovieIndex = 0;
+            updateMovies();
+        }
 
     }
 
@@ -179,17 +190,34 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    @Override
+    public boolean loadMore(int page) {
+        mPage = page;
+        updateMovies();
+        return true;
+    }
+
     public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
 
         ProgressDialog mDialog;
+        Handler mHandler;
+        Runnable mDialogRunnable;
 
         @Override
         protected void onPreExecute() {
-            mDialog = ProgressDialog.show(
-                    MainActivity.this,
-                    getResources().getString(R.string.please_wait),
-                    getResources().getString(R.string.loading),
-                    true, false);
+            mHandler = new Handler();
+            mDialogRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mDialog = ProgressDialog.show(
+                            MainActivity.this,
+                            getResources().getString(R.string.please_wait),
+                            getResources().getString(R.string.loading),
+                            true, false);
+                }
+            };
+            mHandler.postDelayed(mDialogRunnable, 100);
+
         }
 
         @Override
@@ -210,9 +238,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         .appendQueryParameter(Constants.SORTING_PARAM, params[0])
                         .appendQueryParameter(Constants.COUNT_FILTER, params[1])
                         .appendQueryParameter(Constants.API_KEY_PARAM, getResources().getString(R.string.themoviedb_api_key))
+                        .appendQueryParameter(Constants.PAGE_PARAM, params[2])
                         .build();
 
                 URL url = new URL(builtUri.toString());
+
+                Log.d(Constants.LOG_TAG, "URL: " + url.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -279,11 +310,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (movieResults != null) {
                 mMovieResult = movieResults;
                 if (mPosterFragment != null) {
-                    mPosterFragment.addMovies(movieResults.getResults());
-                    mPosterFragment.setSelection(mSelectedMovieIndex);
+                    if (mPage == 1) {
+                        mSelectedMovieIndex = 0;
+                        mPosterFragment.setupMovies(movieResults.getResults());
+                    } else {
+                        mPosterFragment.addMovies(movieResults.getResults());
+                        mPosterFragment.setSelection(mSelectedMovieIndex);
+                    }
+
                 }
             }
-
+            mHandler.removeCallbacks(mDialogRunnable);
             if (mDialog != null) mDialog.dismiss();
         }
     }

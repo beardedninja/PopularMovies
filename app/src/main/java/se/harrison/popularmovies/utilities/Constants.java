@@ -18,4 +18,5 @@ public class Constants {
     public static final String SORTING_PARAM = "sort_by";
     public static final String API_KEY_PARAM = "api_key";
     public static final String COUNT_FILTER = "vote_count.gte";
+    public static final String PAGE_PARAM = "page";
 }

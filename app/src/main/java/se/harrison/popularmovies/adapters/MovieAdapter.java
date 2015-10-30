@@ -94,7 +94,10 @@ public class MovieAdapter extends BaseAdapter {
             }
         });
 
-        Picasso.with(mContext).load(Constants.THUMBNAIL_URL + movie.posterPath).into(imageView);
+        Picasso.with(mContext)
+                .load(Constants.THUMBNAIL_URL + movie.posterPath)
+                .placeholder(R.drawable.poster_empty)
+                .into(imageView);
 
         return posterView;
     }
@@ -104,8 +107,12 @@ public class MovieAdapter extends BaseAdapter {
         return mMovies.isEmpty();
     }
 
-    public void addMovies(ArrayList<Movie> movies) {
+    public void setupMovies(ArrayList<Movie> movies) {
         mMovies.clear();
+        addMovies(movies);
+    }
+
+    public void addMovies(ArrayList<Movie> movies) {
         for (Movie movie : movies) {
             mMovies.add(movie);
         }
