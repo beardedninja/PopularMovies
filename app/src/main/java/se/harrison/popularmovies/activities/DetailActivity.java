@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import se.harrison.popularmovies.R;
+import se.harrison.popularmovies.fragments.DetailFragment;
 import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.utilities.Constants;
 
@@ -19,33 +20,22 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        Bundle bundle = getIntent().getExtras();
-        bundle.setClassLoader(Movie.class.getClassLoader());
-        Movie movie = bundle.getParcelable("movie");
+        if (savedInstanceState == null) {
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
 
-        if (movie == null) {
-            finish();
-        } else {
-            setupToolbar();
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(DetailFragment.MOVIE, getIntent().getExtras().getParcelable("movie"));
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_detail_container, fragment)
+                    .commit();
         }
 
-        ImageView backdrop = (ImageView) findViewById(R.id.backdropImageView);
-        Picasso.with(this).load(Constants.THUMBNAIL_URL + movie.backdropPath).into(backdrop);
-
-        TextView title = (TextView) findViewById(R.id.titleTextView);
-        title.setText(movie.title);
-
-        TextView year = (TextView) findViewById(R.id.yearTextView);
-        year.setText(movie.getReleaseYear());
-
-        TextView voteAverage = (TextView) findViewById(R.id.ratingTextView);
-        voteAverage.setText(movie.voteAverage + "/10");
-
-        TextView synopsis = (TextView) findViewById(R.id.synopsisTextView);
-        synopsis.setText(movie.synopsis);
-
-        ImageView poster = (ImageView) findViewById(R.id.posterImageView);
-        Picasso.with(this).load(Constants.THUMBNAIL_URL + movie.posterPath).into(poster);
+        setupToolbar();
     }
 
     private void setupToolbar() {
