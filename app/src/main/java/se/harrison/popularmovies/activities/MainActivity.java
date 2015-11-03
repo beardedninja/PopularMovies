@@ -39,7 +39,9 @@ import java.util.Locale;
 
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.fragments.PosterFragment;
+import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.models.MovieResult;
+import se.harrison.popularmovies.tasks.FetchMoviesTask;
 import se.harrison.popularmovies.utilities.Constants;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, PosterFragment.PagingListener {
@@ -135,8 +137,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 .putInt("page", mPage)
                 .apply();
 
-        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
-        fetchMoviesTask.execute(mSorting, mCountFilter, "" + mPage);
+        new FetchMoviesTask(this).execute(mSorting, mCountFilter, "" + mPage);
+    }
+
+    public void setMovieResult(MovieResult movieResults) {
+        if (mPosterFragment != null) {
+            if (mPage == 1) {
+                mSelectedMovieIndex = 0;
+                mPosterFragment.setupMovies(movieResults.getResults());
+            } else {
+                mPosterFragment.addMovies(movieResults.getResults());
+                mPosterFragment.setSelection(mSelectedMovieIndex);
+            }
+
+        }
     }
 
     public void setSelectedMovie(int position) {
@@ -195,133 +209,5 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mPage = page;
         updateMovies();
         return true;
-    }
-
-    public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
-
-        ProgressDialog mDialog;
-        Handler mHandler;
-        Runnable mDialogRunnable;
-
-        @Override
-        protected void onPreExecute() {
-            mHandler = new Handler();
-            mDialogRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    mDialog = ProgressDialog.show(
-                            MainActivity.this,
-                            getResources().getString(R.string.please_wait),
-                            getResources().getString(R.string.loading),
-                            true, false);
-                }
-            };
-            mHandler.postDelayed(mDialogRunnable, 100);
-
-        }
-
-        @Override
-        protected MovieResult doInBackground(String... params) {
-
-            if (params.length == 0) return null;
-
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            // Will contain the raw JSON response as a string.
-            String moviesJsonStr = null;
-
-            try {
-                Uri builtUri = Uri.parse(Constants.MOVIE_BASE_URL).buildUpon()
-                        .appendQueryParameter(Constants.SORTING_PARAM, params[0])
-                        .appendQueryParameter(Constants.COUNT_FILTER, params[1])
-                        .appendQueryParameter(Constants.API_KEY_PARAM, getResources().getString(R.string.themoviedb_api_key))
-                        .appendQueryParameter(Constants.PAGE_PARAM, params[2])
-                        .build();
-
-                URL url = new URL(builtUri.toString());
-
-                Log.d(Constants.LOG_TAG, "URL: " + url.toString());
-
-                // Create the request to OpenWeatherMap, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                moviesJsonStr = buffer.toString();
-            } catch (IOException e) {
-                Log.e(Constants.LOG_TAG, "Error ", e);
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(Constants.LOG_TAG, "Error closing stream", e);
-                    }
-                }
-            }
-
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-
-                @Override
-                public Date deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context)
-                        throws JsonParseException {
-                    try {
-                        return df.parse(json.getAsString());
-                    } catch (ParseException e) {
-                        return null;
-                    }
-                }
-            }).create();
-
-            return gson.fromJson(moviesJsonStr, MovieResult.class);
-        }
-
-        @Override
-        protected void onPostExecute(MovieResult movieResults) {
-            if (movieResults != null) {
-                mMovieResult = movieResults;
-                if (mPosterFragment != null) {
-                    if (mPage == 1) {
-                        mSelectedMovieIndex = 0;
-                        mPosterFragment.setupMovies(movieResults.getResults());
-                    } else {
-                        mPosterFragment.addMovies(movieResults.getResults());
-                        mPosterFragment.setSelection(mSelectedMovieIndex);
-                    }
-
-                }
-            }
-            mHandler.removeCallbacks(mDialogRunnable);
-            if (mDialog != null) mDialog.dismiss();
-        }
     }
 }
