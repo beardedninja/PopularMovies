@@ -1,11 +1,8 @@
 package se.harrison.popularmovies.tasks;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -30,47 +27,25 @@ import java.util.Date;
 import java.util.Locale;
 
 import se.harrison.popularmovies.R;
+import se.harrison.popularmovies.activities.DetailActivity;
 import se.harrison.popularmovies.activities.MainActivity;
+import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.utilities.Constants;
 
 /**
- * Created by alex on 30/10/15.
+ * Created by alex on 03/11/15.
  */
-public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
+public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
 
-    ProgressDialog mDialog;
-    Handler mHandler;
-    Runnable mDialogRunnable;
     WeakReference<Activity> mActivityReference;
 
-    public FetchMoviesTask(Activity activity) {
+    public FetchMovieTask(Activity activity) {
         mActivityReference = new WeakReference<>(activity);
     }
 
     @Override
-    protected void onPreExecute() {
-        mHandler = new Handler();
-        if (mActivityReference.get() != null) {
-            mDialogRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    Context context = mActivityReference.get();
-                    if (context != null) {
-                        mDialog = ProgressDialog.show(
-                                context,
-                                context.getResources().getString(R.string.please_wait),
-                                context.getResources().getString(R.string.loading),
-                                true, false);
-                    }
-                }
-            };
-            mHandler.postDelayed(mDialogRunnable, 100);
-        }
-    }
-
-    @Override
-    protected MovieResult doInBackground(String... params) {
+    protected Movie doInBackground(String... params) {
 
         if (params.length == 0) return null;
 
@@ -82,14 +57,13 @@ public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
         BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
-        String moviesJsonStr = null;
+        String movieJsonStr = null;
 
         try {
-            Uri builtUri = Uri.parse(Constants.DISCOVER_MOVIE_BASE_URL).buildUpon()
-                    .appendQueryParameter(Constants.SORTING_PARAM, params[0])
-                    .appendQueryParameter(Constants.COUNT_FILTER, params[1])
+            Uri builtUri = Uri.parse(Constants.MOVIE_BASE_URL).buildUpon()
+                    .appendPath(params[0])
                     .appendQueryParameter(Constants.API_KEY_PARAM, mActivityReference.get().getResources().getString(R.string.themoviedb_api_key))
-                    .appendQueryParameter(Constants.PAGE_PARAM, params[2])
+                    .appendQueryParameter("append_to_response", "reviews,trailers")
                     .build();
 
             URL url = new URL(builtUri.toString());
@@ -122,7 +96,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
                 // Stream was empty.  No point in parsing.
                 return null;
             }
-            moviesJsonStr = buffer.toString();
+            movieJsonStr = buffer.toString();
         } catch (IOException e) {
             Log.e(Constants.LOG_TAG, "Error ", e);
             return null;
@@ -153,16 +127,13 @@ public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
             }
         }).create();
 
-        return gson.fromJson(moviesJsonStr, MovieResult.class);
+        return gson.fromJson(movieJsonStr, Movie.class);
     }
 
     @Override
-    protected void onPostExecute(MovieResult movieResults) {
-        if (movieResults != null && mActivityReference.get() != null) {
-            ((MainActivity) mActivityReference.get()).setMovieResult(movieResults);
+    protected void onPostExecute(Movie movie) {
+        if (movie != null && mActivityReference.get() != null) {
+            ((DetailActivity) mActivityReference.get()).setMovie(movie);
         }
-
-        mHandler.removeCallbacks(mDialogRunnable);
-        if (mDialog != null) mDialog.dismiss();
     }
 }

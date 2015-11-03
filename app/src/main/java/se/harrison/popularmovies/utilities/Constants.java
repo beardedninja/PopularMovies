@@ -14,7 +14,8 @@ public class Constants {
     public static final String API_SORTING_HIGHEST_RATED = "vote_count.desc";
 
     public static final String LOG_TAG = "PopularMovies";
-    public static final String MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
+    public static final String DISCOVER_MOVIE_BASE_URL = "https://api.themoviedb.org/3/discover/movie?";
+    public static final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/";
     public static final String SORTING_PARAM = "sort_by";
     public static final String API_KEY_PARAM = "api_key";
     public static final String COUNT_FILTER = "vote_count.gte";

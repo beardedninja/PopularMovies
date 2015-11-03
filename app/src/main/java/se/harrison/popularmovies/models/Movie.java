@@ -6,7 +6,9 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Created by alex on 14/09/15.
@@ -31,6 +33,12 @@ public class Movie implements Parcelable {
 
     @SerializedName("title")
     public String title;
+
+    @SerializedName("trailers")
+    public HashMap<String, ArrayList<Trailer>> trailers;
+
+    @SerializedName("reviews")
+    public ReviewsResult review_result;
 
     @Override
     public int describeContents() {

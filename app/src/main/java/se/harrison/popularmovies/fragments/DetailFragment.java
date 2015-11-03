@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.adapters.MovieAdapter;
 import se.harrison.popularmovies.models.Movie;
+import se.harrison.popularmovies.tasks.FetchMovieTask;
 import se.harrison.popularmovies.utilities.Constants;
 import se.harrison.popularmovies.utilities.EndlessScrollListener;
 
