@@ -23,14 +23,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/reviewTextView"
-            android:paddingBottom="8dp"/>
+            android:id="@+id/reviewTextView"/>
 
         <TextView
+            android:paddingTop="8dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/holo_orange_light"
-            android:id="@+id/authorTextView"/>
+            android:id="@+id/authorTextView"
+            android:layout_gravity="end"/>
 
     </LinearLayout>
 </LinearLayout>
