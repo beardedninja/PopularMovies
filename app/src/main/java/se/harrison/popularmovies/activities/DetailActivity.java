@@ -62,16 +62,8 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void setMovie(Movie movie) {
-        Log.d(Constants.LOG_TAG, "Movie! Trailers: - " + movie.trailers.get("youtube").size());
-        ArrayList<Trailer> youtubeTrailers = movie.trailers.get("youtube");
-        for (Trailer trailer : youtubeTrailers) {
-            Log.d(Constants.LOG_TAG, "Name: " + trailer.name + ", Type: " + trailer.type + ", Source: " + trailer.source);
-        }
-
-        ArrayList<Review> reviews = movie.review_result.results;
-
-        for (Review review : reviews) {
-            Log.d(Constants.LOG_TAG, "Author: " + review.author + ", Contents:\n" + review.content);
+        if (mDetailFragment != null) {
+            mDetailFragment.setExtraMovieDetail(movie);
         }
     }
 }

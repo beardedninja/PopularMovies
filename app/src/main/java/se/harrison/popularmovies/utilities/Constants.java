@@ -20,4 +20,7 @@ public class Constants {
     public static final String API_KEY_PARAM = "api_key";
     public static final String COUNT_FILTER = "vote_count.gte";
     public static final String PAGE_PARAM = "page";
+
+    public static final String YOUTUBE_URL = "http://www.youtube.com/watch";
+    public static final String VIDEO_PARAM = "v";
 }

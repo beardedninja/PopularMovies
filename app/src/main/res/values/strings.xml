@@ -12,4 +12,9 @@
     <string name="title_activity_detail">DetailActivity</string>
     <string name="please_wait">Please wait</string>
     <string name="loading">Loading</string>
+    <string name="trailers">Trailers…</string>
+    <string name="reviews">Reviews…</string>
+    <string name="right_arrow">\u25B6</string>
+    <string name="vote_score">%1$s/10</string>
+    <string name="trailer_tagline">%1$s (%2$s)</string>
 </resources>
