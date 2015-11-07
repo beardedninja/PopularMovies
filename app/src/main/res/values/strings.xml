@@ -4,6 +4,7 @@
     <string-array name="sort_array">
         <item>Most popular</item>
         <item>Highest rated</item>
+        <item>Your favorites</item>
     </string-array>
 
     <string name="order_by_popularity">popularity.desc</string>

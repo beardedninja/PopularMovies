@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 return 0;
             case Constants.API_SORTING_HIGHEST_RATED:
                 return 1;
+            case Constants.FETCH_FAVORITES:
+                return 2;
             default:
                 return 0;
         }

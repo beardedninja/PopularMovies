@@ -21,6 +21,7 @@ import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.tasks.FetchMoviesTask;
 import se.harrison.popularmovies.utilities.Constants;
 import se.harrison.popularmovies.utilities.EndlessScrollListener;
+import se.harrison.popularmovies.utilities.FavoriteMovieStorage;
 import se.harrison.popularmovies.utilities.MovieResultReceiver;
 
 import static se.harrison.popularmovies.utilities.Constants.*;
@@ -55,6 +56,7 @@ public class PosterFragment extends Fragment implements MovieResultReceiver {
         mGrid.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
+                if (mSorting.equals(FETCH_FAVORITES)) return false;
                 mPage = page;
                 updateMovies();
                 return true;
@@ -122,6 +124,10 @@ public class PosterFragment extends Fragment implements MovieResultReceiver {
                 mSorting = API_SORTING_HIGHEST_RATED;
                 mCountFilter = "10";
                 break;
+            case FETCH_FAVORITES:
+                mSorting = FETCH_FAVORITES;
+                mCountFilter = "0";
+                break;
             default:
                 mSorting = API_SORTING_POPULARITY;
                 mCountFilter = "0";
@@ -141,7 +147,11 @@ public class PosterFragment extends Fragment implements MovieResultReceiver {
                 .putInt("page", mPage)
                 .apply();
 
-        new FetchMoviesTask(this).execute(mSorting, mCountFilter, String.valueOf(mPage));
+        if (mSorting.equals(FETCH_FAVORITES)) {
+            setupMovies(FavoriteMovieStorage.getInstance(getContext()).getFavoriteMovies());
+        } else {
+            new FetchMoviesTask(this).execute(mSorting, mCountFilter, String.valueOf(mPage));
+        }
     }
 
     public void setupMovies(ArrayList<Movie> movies) {

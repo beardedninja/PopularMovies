@@ -9,6 +9,7 @@ public class Constants {
 
     public static final String SORTING_POPULARITY = "Most popular";
     public static final String SORTING_HIGHEST_RATED = "Highest rated";
+    public static final String FETCH_FAVORITES="Your favorites";
 
     public static final String API_SORTING_POPULARITY = "popularity.desc";
     public static final String API_SORTING_HIGHEST_RATED = "vote_count.desc";
