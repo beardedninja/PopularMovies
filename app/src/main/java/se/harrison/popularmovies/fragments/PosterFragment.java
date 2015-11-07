@@ -40,17 +40,7 @@ public class PosterFragment extends Fragment implements MovieResultReceiver {
     private MovieResult mMovieResult;
 
     public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
-        public void onItemSelected(Movie movie, int position);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // Add this line in order for this fragment to handle menu events.
-        setHasOptionsMenu(true);
+        void onItemSelected(Movie movie, int position);
     }
 
     @Override

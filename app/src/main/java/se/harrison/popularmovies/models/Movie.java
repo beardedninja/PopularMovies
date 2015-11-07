@@ -14,7 +14,7 @@ import java.util.HashMap;
  * Created by alex on 14/09/15.
  */
 public class Movie implements Parcelable {
-    public int id;
+    public Integer id;
 
     @SerializedName("poster_path")
     public String posterPath;

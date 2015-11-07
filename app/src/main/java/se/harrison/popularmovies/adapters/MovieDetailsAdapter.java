@@ -8,9 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -21,6 +24,7 @@ import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.models.Review;
 import se.harrison.popularmovies.models.Trailer;
 import se.harrison.popularmovies.utilities.Constants;
+import se.harrison.popularmovies.utilities.FavoriteMovieStorage;
 
 /**
  * Created by alex on 05/11/15.
@@ -175,9 +179,22 @@ public class MovieDetailsAdapter implements ListAdapter {
 
         if (mMovie.runTime != null) {
             TextView runTime = (TextView) detailView.findViewById(R.id.runTimeTextView);
-            runTime.setText(String.format(mContext.getString(R.string.runtime),mMovie.runTime));
+            runTime.setText(String.format(mContext.getString(R.string.runtime), mMovie.runTime));
         }
 
+        ToggleButton fave = (ToggleButton) detailView.findViewById(R.id.faveToggleButton);
+        fave.setChecked(FavoriteMovieStorage.getInstance(mContext).isFavorited(mMovie));
+
+        fave.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    FavoriteMovieStorage.getInstance(mContext).addMovie(mMovie);
+                } else {
+                    FavoriteMovieStorage.getInstance(mContext).removeMovie(mMovie);
+                }
+            }
+        });
 
         ImageView poster = (ImageView) detailView.findViewById(R.id.posterImageView);
         Picasso.with(detailView.getContext()).load(Constants.THUMBNAIL_URL + mMovie.posterPath).into(poster);

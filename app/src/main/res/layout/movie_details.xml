@@ -58,6 +58,14 @@
                 android:paddingRight="8dp"
                 android:paddingBottom="8dp"/>
 
+            <ToggleButton
+                android:id="@+id/faveToggleButton"
+                android:layout_width="140dp"
+                android:layout_height="40dp"
+                android:background="@drawable/check"
+                android:textOn="@string/unfavorite"
+                android:textOff="@string/favorite" />
+
         </LinearLayout>
 
     </LinearLayout>

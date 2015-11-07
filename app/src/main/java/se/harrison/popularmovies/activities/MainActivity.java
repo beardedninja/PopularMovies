@@ -19,6 +19,7 @@ import se.harrison.popularmovies.fragments.DetailFragment;
 import se.harrison.popularmovies.fragments.PosterFragment;
 import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.utilities.Constants;
+import se.harrison.popularmovies.utilities.FavoriteMovieStorage;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
         PosterFragment.Callback {
@@ -66,6 +67,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mSpinner.setAdapter(adapter);
         mSpinner.setSelection(sortValueToIndex(), false);
         mSpinner.setOnItemSelectedListener(MainActivity.this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                FavoriteMovieStorage.getInstance(getApplicationContext());
+            }
+        }).start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        FavoriteMovieStorage.getInstance(this).storeFavorites(this);
     }
 
     @Override

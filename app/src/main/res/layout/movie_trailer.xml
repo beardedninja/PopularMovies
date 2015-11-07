@@ -26,7 +26,8 @@
             android:id="@+id/trailerButton"
             android:text="@string/right_arrow"
             android:textSize="50sp"
-            android:paddingRight="16dp"/>
+            android:paddingRight="16dp"
+            android:textColor="@color/green"/>
 
         <TextView
             android:layout_width="wrap_content"

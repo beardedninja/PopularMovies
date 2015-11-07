@@ -18,4 +18,6 @@
     <string name="vote_score">%1$s/10</string>
     <string name="trailer_tagline">%1$s (%2$s)</string>
     <string name="runtime">%1$smins</string>
+    <string name="favorite">Mark as favorite</string>
+    <string name="unfavorite">Remove favorite</string>
 </resources>
