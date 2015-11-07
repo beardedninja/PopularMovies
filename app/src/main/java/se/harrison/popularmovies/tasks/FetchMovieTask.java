@@ -1,6 +1,6 @@
 package se.harrison.popularmovies.tasks;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -28,20 +28,19 @@ import java.util.Locale;
 
 import se.harrison.popularmovies.R;
 import se.harrison.popularmovies.activities.DetailActivity;
-import se.harrison.popularmovies.activities.MainActivity;
 import se.harrison.popularmovies.models.Movie;
-import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.utilities.Constants;
+import se.harrison.popularmovies.utilities.MovieReceiver;
 
 /**
  * Created by alex on 03/11/15.
  */
 public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
 
-    WeakReference<Activity> mActivityReference;
+    WeakReference<MovieReceiver> mMovieReceiver;
 
-    public FetchMovieTask(Activity activity) {
-        mActivityReference = new WeakReference<>(activity);
+    public FetchMovieTask(MovieReceiver movieReceiver) {
+        mMovieReceiver = new WeakReference<>(movieReceiver);
     }
 
     @Override
@@ -49,7 +48,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
 
         if (params.length == 0) return null;
 
-        if (mActivityReference.get() == null) return null;
+        if (mMovieReceiver.get() == null) return null;
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -62,7 +61,8 @@ public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
         try {
             Uri builtUri = Uri.parse(Constants.MOVIE_BASE_URL).buildUpon()
                     .appendPath(params[0])
-                    .appendQueryParameter(Constants.API_KEY_PARAM, mActivityReference.get().getResources().getString(R.string.themoviedb_api_key))
+                    .appendQueryParameter(Constants.API_KEY_PARAM, mMovieReceiver.get().getContext()
+                            .getResources().getString(R.string.themoviedb_api_key))
                     .appendQueryParameter("append_to_response", "reviews,trailers")
                     .build();
 
@@ -132,8 +132,8 @@ public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
 
     @Override
     protected void onPostExecute(Movie movie) {
-        if (movie != null && mActivityReference.get() != null) {
-            ((DetailActivity) mActivityReference.get()).setMovie(movie);
+        if (movie != null && mMovieReceiver.get() != null) {
+            mMovieReceiver.get().setMovie(movie);
         }
     }
 }

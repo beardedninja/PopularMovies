@@ -35,11 +35,6 @@ public class DetailActivity extends AppCompatActivity {
             Bundle arguments = new Bundle();
             arguments.putParcelable(DetailFragment.MOVIE, getIntent().getExtras().getParcelable("movie"));
 
-            Movie movie = getIntent().getExtras().getParcelable("movie");
-            if (movie != null && movie.id > 0) {
-                new FetchMovieTask(this).execute("" + movie.id);
-            }
-
             mDetailFragment = new DetailFragment();
             mDetailFragment.setArguments(arguments);
 
@@ -58,12 +53,6 @@ public class DetailActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    public void setMovie(Movie movie) {
-        if (mDetailFragment != null) {
-            mDetailFragment.setExtraMovieDetail(movie);
         }
     }
 }

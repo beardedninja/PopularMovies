@@ -28,11 +28,12 @@ import se.harrison.popularmovies.models.Trailer;
 import se.harrison.popularmovies.tasks.FetchMovieTask;
 import se.harrison.popularmovies.utilities.Constants;
 import se.harrison.popularmovies.utilities.EndlessScrollListener;
+import se.harrison.popularmovies.utilities.MovieReceiver;
 
 /**
  * Created by alex on 30/10/15.
  */
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements MovieReceiver {
 
     public static String MOVIE = "movie";
 
@@ -52,8 +53,15 @@ public class DetailFragment extends Fragment {
             mMovie = arguments.getParcelable(DetailFragment.MOVIE);
         }
 
+        if (mMovie != null && mMovie.id > 0) {
+            new FetchMovieTask(this).execute(String.valueOf(mMovie.id));
+        }
+
         View view =  inflater.inflate(R.layout.fragment_detail, container, false);
 
+        if (mMovie == null) {
+            return view;
+        }
         ImageView backdrop = (ImageView) view.findViewById(R.id.backdropImageView);
         Picasso.with(getContext()).load(Constants.THUMBNAIL_URL + mMovie.backdropPath).into(backdrop);
 
@@ -81,7 +89,8 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
-    public void setExtraMovieDetail(Movie movie) {
+    @Override
+    public void setMovie(Movie movie) {
         // Base movie information replaced with the more detailed information from the FetchMovieTask
         mMovie = movie;
 

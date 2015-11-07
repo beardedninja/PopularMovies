@@ -1,6 +1,6 @@
 package se.harrison.popularmovies.tasks;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
@@ -30,9 +30,10 @@ import java.util.Date;
 import java.util.Locale;
 
 import se.harrison.popularmovies.R;
-import se.harrison.popularmovies.activities.MainActivity;
+import se.harrison.popularmovies.fragments.PosterFragment;
 import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.utilities.Constants;
+import se.harrison.popularmovies.utilities.MovieResultReceiver;
 
 /**
  * Created by alex on 30/10/15.
@@ -42,20 +43,20 @@ public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
     ProgressDialog mDialog;
     Handler mHandler;
     Runnable mDialogRunnable;
-    WeakReference<Activity> mActivityReference;
+    WeakReference<MovieResultReceiver> mMovieResultReceiver;
 
-    public FetchMoviesTask(Activity activity) {
-        mActivityReference = new WeakReference<>(activity);
+    public FetchMoviesTask(MovieResultReceiver movieResultReceiver) {
+        mMovieResultReceiver = new WeakReference<>(movieResultReceiver);
     }
 
     @Override
     protected void onPreExecute() {
         mHandler = new Handler();
-        if (mActivityReference.get() != null) {
+        if (mMovieResultReceiver.get() != null) {
             mDialogRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Context context = mActivityReference.get();
+                    Context context = mMovieResultReceiver.get().getContext();
                     if (context != null) {
                         mDialog = ProgressDialog.show(
                                 context,
@@ -74,7 +75,7 @@ public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
 
         if (params.length == 0) return null;
 
-        if (mActivityReference.get() == null) return null;
+        if (mMovieResultReceiver.get() == null) return null;
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -88,13 +89,11 @@ public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
             Uri builtUri = Uri.parse(Constants.DISCOVER_MOVIE_BASE_URL).buildUpon()
                     .appendQueryParameter(Constants.SORTING_PARAM, params[0])
                     .appendQueryParameter(Constants.COUNT_FILTER, params[1])
-                    .appendQueryParameter(Constants.API_KEY_PARAM, mActivityReference.get().getResources().getString(R.string.themoviedb_api_key))
+                    .appendQueryParameter(Constants.API_KEY_PARAM, mMovieResultReceiver.get().getContext().getResources().getString(R.string.themoviedb_api_key))
                     .appendQueryParameter(Constants.PAGE_PARAM, params[2])
                     .build();
 
             URL url = new URL(builtUri.toString());
-
-            Log.d(Constants.LOG_TAG, "URL: " + url.toString());
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -158,8 +157,8 @@ public class FetchMoviesTask extends AsyncTask<String, Void, MovieResult> {
 
     @Override
     protected void onPostExecute(MovieResult movieResults) {
-        if (movieResults != null && mActivityReference.get() != null) {
-            ((MainActivity) mActivityReference.get()).setMovieResult(movieResults);
+        if (movieResults != null && mMovieResultReceiver.get() != null) {
+            mMovieResultReceiver.get().setMovieResult(movieResults);
         }
 
         mHandler.removeCallbacks(mDialogRunnable);

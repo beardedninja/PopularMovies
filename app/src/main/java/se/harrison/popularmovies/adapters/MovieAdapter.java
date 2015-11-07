@@ -2,6 +2,7 @@ package se.harrison.popularmovies.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,16 +84,6 @@ public class MovieAdapter extends BaseAdapter {
         titleView.setText(movie.title);
 
         ImageView imageView = (ImageView) posterView.findViewById(R.id.posterImageView);
-
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity) mContext).setSelectedMovie(position);
-                Intent intent = new Intent(mContext, DetailActivity.class);
-                intent.putExtra("movie", getItem(position));
-                mContext.startActivity(intent);
-            }
-        });
 
         Picasso.with(mContext)
                 .load(Constants.THUMBNAIL_URL + movie.posterPath)

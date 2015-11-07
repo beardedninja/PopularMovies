@@ -1,84 +1,51 @@
 package se.harrison.popularmovies.activities;
 
-import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
 
 import se.harrison.popularmovies.R;
+import se.harrison.popularmovies.fragments.DetailFragment;
 import se.harrison.popularmovies.fragments.PosterFragment;
 import se.harrison.popularmovies.models.Movie;
-import se.harrison.popularmovies.models.MovieResult;
-import se.harrison.popularmovies.tasks.FetchMoviesTask;
 import se.harrison.popularmovies.utilities.Constants;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, PosterFragment.PagingListener {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
+        PosterFragment.Callback {
 
-    private PosterFragment mPosterFragment;
-    private MovieResult mMovieResult;
+    private String mSorting = Constants.SORTING_POPULARITY;
+    private int mSelectedMovieIndex = 0;
+    private boolean mTwoPane;
 
-    private String mSorting;
-    private String mCountFilter;
-    private int mSelectedMovieIndex;
-    private int mPage;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String mDefaultSorting = Constants.API_SORTING_POPULARITY;
-        String mDefaultCountFilter = "0";
         mSelectedMovieIndex = 0;
 
-        if (savedInstanceState == null) {
-            mPosterFragment = new PosterFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, mPosterFragment, "POSTER_FRAGMENT")
-                    .commit();
+        if (findViewById(R.id.movie_detail_container) != null) {
+            mTwoPane = true;
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            mSorting = prefs.getString("sorting", mDefaultSorting);
-            mCountFilter = prefs.getString("count_filter", mDefaultCountFilter);
-            mSelectedMovieIndex = prefs.getInt("selected_movie_index", 0);
-            mPage = prefs.getInt("page", 1);
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
         } else {
-            mSorting = mDefaultSorting;
-            mCountFilter = mDefaultCountFilter;
-            mPage = 1;
-            restoreState(savedInstanceState);
+            mTwoPane = false;
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -92,19 +59,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         R.layout.spinner_item,
                         Arrays.asList(getResources().getStringArray(R.array.sort_array)));
 
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        }
+
         mSpinner.setAdapter(adapter);
-        sortValueToIndex();
         mSpinner.setSelection(sortValueToIndex(), false);
         mSpinner.setOnItemSelectedListener(MainActivity.this);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("mMovieResult", mMovieResult);
         outState.putString("mSorting", mSorting);
-        outState.putString("mCountFilter", mCountFilter);
         outState.putInt("mSelectedIndex", mSelectedMovieIndex);
-        outState.putInt("mPage", mPage);
 
         super.onSaveInstanceState(outState);
     }
@@ -112,80 +79,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         restoreState(savedInstanceState);
-
         super.onRestoreInstanceState(savedInstanceState);
     }
 
-    public void restoreState(Bundle savedInstanceState) {
-        mMovieResult = savedInstanceState.getParcelable("mMovieResult");
-        mPosterFragment = (PosterFragment) getSupportFragmentManager().findFragmentByTag("POSTER_FRAGMENT");
-        mSorting = savedInstanceState.getString("mSorting");
-        mCountFilter = savedInstanceState.getString("mCountFilter");
+    protected void restoreState(Bundle savedInstanceState) {
+        mSorting = savedInstanceState.getString("mSorting", Constants.SORTING_POPULARITY);
         mSelectedMovieIndex = savedInstanceState.getInt("mSelectedMovieIndex", 0);
-        mPage = savedInstanceState.getInt("mPage", 1);
-
-        if (mPosterFragment != null && mMovieResult != null) {
-            mPosterFragment.addMovies(mMovieResult.getResults());
-        }
     }
-
-    private void updateMovies() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit()
-                .putString("sorting", mSorting)
-                .putString("count_filter", mCountFilter)
-                .putInt("page", mPage)
-                .apply();
-
-        new FetchMoviesTask(this).execute(mSorting, mCountFilter, "" + mPage);
-    }
-
-    public void setMovieResult(MovieResult movieResults) {
-        if (mPosterFragment != null) {
-            if (mPage == 1) {
-                mSelectedMovieIndex = 0;
-                mPosterFragment.setupMovies(movieResults.getResults());
-            } else {
-                mPosterFragment.addMovies(movieResults.getResults());
-                mPosterFragment.setSelection(mSelectedMovieIndex);
-            }
-
-        }
-    }
-
-    public void setSelectedMovie(int position) {
-        mSelectedMovieIndex = position;
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putInt("selected_movie_index", mSelectedMovieIndex).apply();
-    }
-
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String selection = (String) parent.getAdapter().getItem(position);
-        String currentSorting = mSorting;
 
-        switch (selection) {
-            case Constants.SORTING_POPULARITY:
-                mSorting = Constants.API_SORTING_POPULARITY;
-                mCountFilter = "0";
-                break;
-            case Constants.SORTING_HIGHEST_RATED:
-                mSorting = Constants.API_SORTING_HIGHEST_RATED;
-                mCountFilter = "10";
-                break;
-            default:
-                mSorting = Constants.API_SORTING_POPULARITY;
-                mCountFilter = "0";
-        }
-
-        if (!currentSorting.equals(mSorting) || mMovieResult == null) {
-            mPage = 1;
+        if (!mSorting.equals(selection)) {
             mSelectedMovieIndex = 0;
-            updateMovies();
+            mSorting = selection;
+            PosterFragment posterFragment = (PosterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_poster);
+            posterFragment.changeSorting(mSorting);
         }
-
     }
 
     public int sortValueToIndex() {
@@ -205,9 +116,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
-    public boolean loadMore(int page) {
-        mPage = page;
-        updateMovies();
-        return true;
+    public void onItemSelected(Movie movie, int position) {
+        mSelectedMovieIndex = position;
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.edit().putInt("selected_movie_index", mSelectedMovieIndex).apply();
+
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putParcelable("movie", movie);
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra("movie", movie);
+            startActivity(intent);
+        }
     }
 }
