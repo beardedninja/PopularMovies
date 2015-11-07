@@ -153,17 +153,6 @@ public class MovieDetailsAdapter implements ListAdapter {
                 )
         );
 
-        /*final String source = trailer.source;
-        trailerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Uri builtUri = Uri.parse(Constants.YOUTUBE_URL).buildUpon()
-                        .appendQueryParameter(Constants.VIDEO_PARAM, source)
-                        .build();
-                mContext.startActivity(new Intent(Intent.ACTION_VIEW, builtUri));
-            }
-        });*/
-
         return trailerView;
     }
 
@@ -183,6 +172,12 @@ public class MovieDetailsAdapter implements ListAdapter {
 
         TextView synopsis = (TextView) detailView.findViewById(R.id.synopsisTextView);
         synopsis.setText(mMovie.synopsis);
+
+        if (mMovie.runTime != null) {
+            TextView runTime = (TextView) detailView.findViewById(R.id.runTimeTextView);
+            runTime.setText(String.format(mContext.getString(R.string.runtime),mMovie.runTime));
+        }
+
 
         ImageView poster = (ImageView) detailView.findViewById(R.id.posterImageView);
         Picasso.with(detailView.getContext()).load(Constants.THUMBNAIL_URL + mMovie.posterPath).into(poster);

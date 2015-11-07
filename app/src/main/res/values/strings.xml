@@ -17,4 +17,5 @@
     <string name="right_arrow">\u25B6</string>
     <string name="vote_score">%1$s/10</string>
     <string name="trailer_tagline">%1$s (%2$s)</string>
+    <string name="runtime">%1$smins</string>
 </resources>

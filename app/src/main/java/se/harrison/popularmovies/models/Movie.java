@@ -34,6 +34,9 @@ public class Movie implements Parcelable {
     @SerializedName("title")
     public String title;
 
+    @SerializedName("runtime")
+    public String runTime;
+
     @SerializedName("trailers")
     public HashMap<String, ArrayList<Trailer>> trailers;
 
@@ -54,6 +57,7 @@ public class Movie implements Parcelable {
         dest.writeDouble(this.voteAverage);
         dest.writeString(this.synopsis);
         dest.writeString(this.title);
+        dest.writeString(this.runTime);
     }
 
     public Movie() {
@@ -68,6 +72,7 @@ public class Movie implements Parcelable {
         this.voteAverage = in.readDouble();
         this.synopsis = in.readString();
         this.title = in.readString();
+        this.runTime = in.readString();
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
