@@ -118,9 +118,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             PosterFragment posterFragment = (PosterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_poster);
             posterFragment.changeSorting(mSorting);
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
-                    .commit();
+            if (mTwoPane) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
         }
     }
 
