@@ -2,6 +2,7 @@ package se.harrison.popularmovies.fragments;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -68,6 +69,8 @@ public class PosterFragment extends Fragment implements MovieResultReceiver {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ((Callback) getActivity())
                         .onItemSelected(mMovieAdapter.getItem(position), position);
+                mGrid.setItemChecked(position, true);
+                view.setSelected(true);
             }
         });
 

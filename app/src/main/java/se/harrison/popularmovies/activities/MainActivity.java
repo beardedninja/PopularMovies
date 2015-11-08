@@ -117,6 +117,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             mSorting = selection;
             PosterFragment posterFragment = (PosterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_poster);
             posterFragment.changeSorting(mSorting);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
+                    .commit();
         }
     }
 

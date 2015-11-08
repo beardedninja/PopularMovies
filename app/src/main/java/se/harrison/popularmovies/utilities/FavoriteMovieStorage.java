@@ -106,7 +106,7 @@ public class FavoriteMovieStorage {
 
     public ArrayList<Movie> getFavoriteMovies() {
         ensureStorage();
-        
+
         return mFavoriteMovies;
     }
 }

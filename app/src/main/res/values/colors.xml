@@ -3,4 +3,5 @@
     <color name="green">#2ebe4a</color>
     <color name="blue">#0b60fe</color>
     <color name="yellow">#fefa0b</color>
+    <color name="transparent_blue">#600b60fe</color>
 </resources>
