@@ -2,9 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/poster_state"
     android:orientation="vertical"
-    android:padding="4dp"
-    android:background="@drawable/poster_state">
+    android:padding="4dp">
 
     <ImageView
         android:id="@+id/posterImageView"

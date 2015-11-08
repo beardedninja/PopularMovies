@@ -28,7 +28,6 @@
         android:name="se.harrison.popularmovies.fragments.PosterFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout="@layout/fragment_poster"
-        android:background="@android:color/holo_red_light" />
+        tools:layout="@layout/fragment_poster" />
 
 </LinearLayout>

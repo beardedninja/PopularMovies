@@ -1,8 +1,6 @@
 package se.harrison.popularmovies.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +13,6 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import se.harrison.popularmovies.R;
-import se.harrison.popularmovies.activities.DetailActivity;
-import se.harrison.popularmovies.activities.MainActivity;
 import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.utilities.Constants;
 

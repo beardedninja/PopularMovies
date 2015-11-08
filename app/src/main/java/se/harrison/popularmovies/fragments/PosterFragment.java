@@ -1,12 +1,9 @@
 package se.harrison.popularmovies.fragments;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,16 +17,16 @@ import se.harrison.popularmovies.adapters.MovieAdapter;
 import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.tasks.FetchMoviesTask;
-import se.harrison.popularmovies.utilities.Constants;
 import se.harrison.popularmovies.utilities.EndlessScrollListener;
 import se.harrison.popularmovies.utilities.FavoriteMovieStorage;
 import se.harrison.popularmovies.utilities.MovieResultReceiver;
 
-import static se.harrison.popularmovies.utilities.Constants.*;
+import static se.harrison.popularmovies.utilities.Constants.API_SORTING_HIGHEST_RATED;
+import static se.harrison.popularmovies.utilities.Constants.API_SORTING_POPULARITY;
+import static se.harrison.popularmovies.utilities.Constants.FETCH_FAVORITES;
+import static se.harrison.popularmovies.utilities.Constants.SORTING_HIGHEST_RATED;
+import static se.harrison.popularmovies.utilities.Constants.SORTING_POPULARITY;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class PosterFragment extends Fragment implements MovieResultReceiver {
 
     private MovieAdapter mMovieAdapter;
@@ -69,7 +66,6 @@ public class PosterFragment extends Fragment implements MovieResultReceiver {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ((Callback) getActivity())
                         .onItemSelected(mMovieAdapter.getItem(position), position);
-                mGrid.setItemChecked(position, true);
                 view.setSelected(true);
             }
         });

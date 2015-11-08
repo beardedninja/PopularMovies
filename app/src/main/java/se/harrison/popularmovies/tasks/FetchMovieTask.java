@@ -1,6 +1,5 @@
 package se.harrison.popularmovies.tasks;
 
-import android.app.Fragment;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -27,7 +26,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import se.harrison.popularmovies.R;
-import se.harrison.popularmovies.activities.DetailActivity;
 import se.harrison.popularmovies.models.Movie;
 import se.harrison.popularmovies.utilities.Constants;
 import se.harrison.popularmovies.utilities.MovieReceiver;

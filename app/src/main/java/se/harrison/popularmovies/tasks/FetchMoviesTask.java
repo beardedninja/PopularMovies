@@ -1,6 +1,5 @@
 package se.harrison.popularmovies.tasks;
 
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
@@ -30,7 +29,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import se.harrison.popularmovies.R;
-import se.harrison.popularmovies.fragments.PosterFragment;
 import se.harrison.popularmovies.models.MovieResult;
 import se.harrison.popularmovies.utilities.Constants;
 import se.harrison.popularmovies.utilities.MovieResultReceiver;

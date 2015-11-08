@@ -1,6 +1,7 @@
 package se.harrison.popularmovies.utilities;
 
 import android.content.Context;
+
 import se.harrison.popularmovies.models.Movie;
 
 /**
