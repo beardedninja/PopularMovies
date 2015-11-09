@@ -1,5 +1,7 @@
 package se.harrison.popularmovies.activities;
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -27,8 +29,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private String mSorting = Constants.SORTING_POPULARITY;
     private int mSelectedMovieIndex = 0;
     private boolean mTwoPane;
+    private Spinner mSpinner;
 
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    private static final String POSTERFRAGMENT_TAG = "PFTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Spinner mSpinner = (Spinner) findViewById(R.id.spinner_sort);
+        mSpinner = (Spinner) findViewById(R.id.spinner_sort);
 
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
@@ -62,6 +66,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         if (savedInstanceState != null) {
             restoreState(savedInstanceState);
+        } else {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            mSelectedMovieIndex = prefs.getInt("sSelectedMovieIndex", 0);
+            mSorting = prefs.getString("sSorting", Constants.SORTING_POPULARITY);
         }
 
         mSpinner.setAdapter(adapter);
@@ -91,21 +99,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString("mSorting", mSorting);
-        outState.putInt("mSelectedIndex", mSelectedMovieIndex);
-
         super.onSaveInstanceState(outState);
+        outState.putString("sSorting", mSorting);
+        outState.putInt("sSelectedMovieIndex", mSelectedMovieIndex);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        restoreState(savedInstanceState);
         super.onRestoreInstanceState(savedInstanceState);
+
+        restoreState(savedInstanceState);
     }
 
     protected void restoreState(Bundle savedInstanceState) {
-        mSorting = savedInstanceState.getString("mSorting", Constants.SORTING_POPULARITY);
-        mSelectedMovieIndex = savedInstanceState.getInt("mSelectedMovieIndex", 0);
+        mSorting = savedInstanceState.getString("sSorting", Constants.SORTING_POPULARITY);
+        mSelectedMovieIndex = savedInstanceState.getInt("sSelectedMovieIndex", 0);
+        mSpinner.setSelection(sortValueToIndex());
     }
 
     @Override
@@ -115,8 +124,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (!mSorting.equals(selection)) {
             mSelectedMovieIndex = 0;
             mSorting = selection;
-            PosterFragment posterFragment = (PosterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_poster);
+            PosterFragment posterFragment = (PosterFragment) getFragmentManager().findFragmentById(R.id.fragment_poster);
             posterFragment.changeSorting(mSorting);
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().
+                    putString("sSorting", mSorting).
+                    putInt("sSelectedMovieIndex", mSelectedMovieIndex).
+                    apply();
 
             if (mTwoPane) {
                 getSupportFragmentManager().beginTransaction()
@@ -128,9 +143,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public int sortValueToIndex() {
         switch (mSorting) {
-            case Constants.API_SORTING_POPULARITY:
+            case Constants.SORTING_POPULARITY:
                 return 0;
-            case Constants.API_SORTING_HIGHEST_RATED:
+            case Constants.SORTING_HIGHEST_RATED:
                 return 1;
             case Constants.FETCH_FAVORITES:
                 return 2;
@@ -149,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mSelectedMovieIndex = position;
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putInt("selected_movie_index", mSelectedMovieIndex).apply();
+        prefs.edit().putInt("sSelectedMovieIndex", mSelectedMovieIndex).apply();
 
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
